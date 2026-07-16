@@ -1,21 +1,22 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const pool = require("../config/database");
+const pool = require("../config/db");
 
 const router = express.Router();
 
 /*
 ==========================================
 REGISTER
-POST /api/auth/register
 ==========================================
 */
 router.post("/register", async (req, res) => {
     try {
+
+        console.log("Request Body:", req.body);
+
         const { name, email, password } = req.body;
 
-        // Check if user already exists
         const existingUser = await pool.query(
             "SELECT * FROM patients WHERE email = $1",
             [email]
@@ -27,14 +28,12 @@ router.post("/register", async (req, res) => {
             });
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert patient
         const result = await pool.query(
-            `INSERT INTO patients (name, email, password)
-             VALUES ($1, $2, $3)
-             RETURNING id, name, email`,
+            `INSERT INTO patients(name,email,password)
+             VALUES($1,$2,$3)
+             RETURNING id,name,email`,
             [name, email, hashedPassword]
         );
 
@@ -55,7 +54,6 @@ router.post("/register", async (req, res) => {
 /*
 ==========================================
 LOGIN
-POST /api/auth/login
 ==========================================
 */
 router.post("/login", async (req, res) => {
@@ -64,9 +62,8 @@ router.post("/login", async (req, res) => {
 
         const { email, password } = req.body;
 
-        // Find patient
         const result = await pool.query(
-            "SELECT * FROM patients WHERE email = $1",
+            "SELECT * FROM patients WHERE email=$1",
             [email]
         );
 
@@ -78,7 +75,6 @@ router.post("/login", async (req, res) => {
 
         const patient = result.rows[0];
 
-        // Compare password
         const validPassword = await bcrypt.compare(
             password,
             patient.password
@@ -90,7 +86,6 @@ router.post("/login", async (req, res) => {
             });
         }
 
-        // Generate JWT
         const token = jwt.sign(
             {
                 id: patient.id,

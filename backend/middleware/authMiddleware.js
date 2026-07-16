@@ -1,58 +1,34 @@
 const jwt = require("jsonwebtoken");
 
+module.exports = (req, res, next) => {
 
-const authenticateToken = (req,res,next)=>{
+    const token = req.header("Authorization");
 
+    if (!token) {
 
-const authHeader = req.headers["authorization"];
+        return res.status(401).json({
+            message: "Access Denied. Token Missing"
+        });
 
+    }
 
-console.log("AUTH HEADER:", authHeader);
+    try {
 
+        const verified = jwt.verify(
+            token.replace("Bearer ", ""),
+            process.env.JWT_SECRET
+        );
 
-const token = authHeader && authHeader.split(" ")[1];
+        req.user = verified;
 
+        next();
 
-if(!token){
+    } catch (err) {
 
-return res.status(401).json({
+        res.status(401).json({
+            message: "Invalid Token"
+        });
 
-message:"Access denied. Token missing"
-
-});
-
-}
-
-
-jwt.verify(
-
-token,
-
-process.env.JWT_SECRET,
-
-(error,user)=>{
-
-
-if(error){
-
-return res.status(403).json({
-
-message:"Invalid token"
-
-});
-
-}
-
-
-req.user=user;
-
-next();
-
-
-});
-
+    }
 
 };
-
-
-module.exports=authenticateToken;
