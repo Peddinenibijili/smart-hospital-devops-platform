@@ -142,3 +142,25 @@ exports.deleteDoctor = async (req, res) => {
         });
     }
 };
+// =========================
+// MY APPOINTMENTS
+// =========================
+exports.myAppointments = async (req, res) => {
+    try {
+
+        const result = await pool.query(
+            "SELECT * FROM appointments ORDER BY appointment_date ASC"
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};

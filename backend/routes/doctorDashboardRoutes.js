@@ -6,6 +6,11 @@ const auth=require("../middleware/authMiddleware");
 
 const doctor=require("../controllers/doctorDashboardController");
 
+const authMiddleware = require("../middleware/authMiddleware");
+
+const doctorMiddleware = require("../middleware/doctorMiddleware");
+
+const doctorController = require("../controllers/doctorController");
 // Login
 router.post("/login",doctor.login);
 
@@ -13,8 +18,8 @@ router.post("/login",doctor.login);
 router.get("/profile",auth,doctor.profile);
 
 // My Appointments
-router.get("/appointments",auth,doctor.myAppointments);
-router.get("/appointments",authMiddleware,doctorMiddleware,doctorController.myAppointments);
+//router.get("/appointments",auth,doctor.myAppointments);
+router.get("/appointments", authMiddleware, doctorMiddleware, doctorController.myAppointments);
 
 // Update Availability
 router.put("/availability",auth,doctor.updateAvailability);
