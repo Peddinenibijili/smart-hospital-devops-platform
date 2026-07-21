@@ -16,6 +16,10 @@ router.post("/register", async (req, res) => {
         console.log("Request Body:", req.body);
 
         const { name, email, password } = req.body;
+        console.log("Received Data:", { name, email, password });
+        console.log("Name:", name);
+        console.log("Email:", email);
+        console.log("Password:", password);
 
         const existingUser = await pool.query(
             "SELECT * FROM patients WHERE email = $1",
@@ -42,13 +46,17 @@ router.post("/register", async (req, res) => {
             patient: result.rows[0]
         });
 
-    } catch (error) {
-        console.error(error);
+    } 
+    catch (error) {
+        console.error("Registration Error:", error);
 
         res.status(500).json({
-            message: "Registration failed"
-        });
-    }
+            success: false,
+            message: error.message,
+            detail: error.detail || null,
+            code: error.code || null
+       });
+    }   
 });
 
 /*
@@ -102,12 +110,13 @@ router.post("/login", async (req, res) => {
             token
         });
 
-    } catch (error) {
-
-        console.error(error);
+    } 
+    catch (error) {
+     console.error("Login Error:", error);
 
         res.status(500).json({
-            message: "Login failed"
+            message: error.message,
+            detail: error.detail || null
         });
     }
 
